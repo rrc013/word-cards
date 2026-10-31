@@ -1,7 +1,7 @@
 {
   "name": "Word Cards",
   "short_name": "Word Cards",
-  "description": "Talking sight-word flash cards and a listen-and-find game.",
+  "description": "Talking sight-word and number games: flash cards, find it, match, pop, read aloud, and counting to 39.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

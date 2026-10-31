@@ -35,6 +35,10 @@ OPTIONAL - Get an actual APK file
 Note: Step 2 already gives you a real app icon and offline play, so most
 people never need the APK.
 
+Updating the app later
+When you get a new zip, upload just index.html and sw.js to GitHub (Add file >
+Upload files > Commit changes). Same names replace the old files automatically.
+
 Changing words later
 Open index.html in a text editor and find the list starting with "const WORDS = [".
 Each word looks like: ['big','The elephant is big!','🐘'],

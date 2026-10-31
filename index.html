@@ -159,6 +159,40 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
 .nameCard p{margin:0;color:var(--soft)}
 #nameInput{font:inherit;font-size:2rem;font-weight:700;text-align:center;width:100%;padding:10px 14px;border:4px solid var(--line);border-radius:16px;background:var(--bg);color:var(--ink);user-select:text;-webkit-user-select:text}
 #nameInput:focus{outline:none;border-color:var(--blue)}
+/* game categories */
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:520px;margin:0 auto;width:100%}
+.cats button{border:4px solid var(--line);background:var(--chip);border-radius:20px;padding:10px;font-size:1.3rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--soft)}
+.cats button .ic{font-size:1.8rem;line-height:1}
+#catWords[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+#catNums[aria-pressed="true"]{background:color-mix(in srgb,var(--teal) 70%,#000);border-color:color-mix(in srgb,var(--teal) 70%,#000);color:#fff}
+/* number games */
+.nProg{display:flex;align-items:center;gap:8px;max-width:520px;margin:0 auto;width:100%;font-weight:700}
+.nBar{flex:1;height:18px;border-radius:999px;border:3px solid var(--line);background:var(--chip);overflow:hidden}
+.nFill{height:100%;width:0;background:linear-gradient(to right,var(--teal),var(--blue),var(--plum));transition:width .5s}
+.segLabel{align-self:center;color:var(--soft);font-weight:700;margin-right:2px}
+.objs{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;max-width:560px;margin:0 auto 8px;padding:10px;background:var(--card);border:4px solid var(--line);border-radius:20px}
+.objs.small{grid-template-columns:repeat(5,minmax(0,1fr));max-width:340px}
+.objs:not(.small):not(.scatter) .obj:nth-child(10n+5){margin-right:6px}
+.obj{position:relative;aspect-ratio:1;border:0;background:none;padding:0;font-size:clamp(1.15rem,5.2vw,2rem);line-height:1;display:flex;align-items:center;justify-content:center;border-radius:10px;color:inherit}
+.objs.small .obj{font-size:clamp(1.8rem,9vw,2.8rem)}
+.objs.scatter{display:block;position:relative;aspect-ratio:var(--ar);padding:0}
+.objs.scatter .obj{position:absolute;width:var(--cw);font-size:var(--fs)}
+.obj .badge{position:absolute;right:-3px;top:-5px;min-width:1.4em;height:1.4em;padding:0 .25em;border-radius:999px;background:var(--blue);color:#fff;font-size:max(11px,.42em);font-weight:700;display:flex;align-items:center;justify-content:center}
+.obj .badge:empty{display:none}
+.obj.counted{background:color-mix(in srgb,var(--good) 18%,transparent)}
+.obj.counted .e{opacity:.5}
+.obj.marked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--good);font-weight:700;font-size:.9em;text-shadow:0 0 4px var(--card),0 0 2px var(--card)}
+.obj.shake{animation:shake .4s}
+.nline{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:8px 0}
+.ntile{width:clamp(58px,18vw,88px);aspect-ratio:1;border-radius:18px;background:var(--card);border:5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:clamp(1.8rem,7vw,2.8rem);font-weight:700;box-shadow:var(--shadow)}
+.ntile.blank{border-style:dashed;border-color:var(--teal);color:color-mix(in srgb,var(--teal) 70%,var(--ink))}
+.ntile.filled{border-color:var(--good);background:color-mix(in srgb,var(--good) 16%,var(--card))}
+.pic{display:grid;gap:2px;justify-items:center;align-items:center}
+.pic.emo{grid-template-columns:repeat(var(--pc),auto);font-size:clamp(.75rem,3.2vw,1.15rem);line-height:1.1}
+.pic.dots{grid-template-columns:repeat(10,auto);gap:2px}
+.pic.dots i{width:clamp(4px,1.3vw,7px);height:clamp(4px,1.3vw,7px);border-radius:50%;background:var(--ink);display:block}
+.pic.dots i:nth-child(10n+5){margin-right:3px}
+.mcard .fr.num{font-size:clamp(1.8rem,8vw,3rem)}
 /* more modes */
 .modes{flex-wrap:wrap;border-radius:22px;gap:2px}
 .modes button{padding:8px 12px;font-size:1rem}
@@ -241,7 +275,11 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
 </head>
 <body>
 <div class="app">
-  <div class="top">
+  <div class="cats" role="group" aria-label="Kind of game">
+    <button id="catWords" aria-pressed="true"><span class="ic">📖</span>Words</button>
+    <button id="catNums" aria-pressed="false"><span class="ic">🔢</span>Numbers</button>
+  </div>
+  <div class="top" id="wordTop">
     <div class="modes" role="group" aria-label="Game">
       <button id="mCards" aria-pressed="true">🃏 Cards</button>
       <button id="mFind" aria-pressed="false">👂 Find it</button>
@@ -252,7 +290,20 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
     <div class="stars" aria-live="polite"><b>⭐</b><span id="starCount">0</span>&nbsp;/&nbsp;<span id="total">0</span></div>
   </div>
 
-  <div class="opts">
+  <div class="top" id="numTop" hidden>
+    <div class="modes" role="group" aria-label="Number game">
+      <button id="nmCount" aria-pressed="false">👆 Count</button>
+      <button id="nmHow" aria-pressed="false">❓ How many</button>
+      <button id="nmFind" aria-pressed="false">🔍 Find</button>
+      <button id="nmNext" aria-pressed="false">➡️ Next</button>
+      <button id="nmMatch" aria-pressed="false">🧠 Match</button>
+      <button id="nmPop" aria-pressed="false">🫧 Pop</button>
+    </div>
+    <div class="seg" role="group" aria-label="How high"><span class="segLabel">Up to</span><button data-max="10">10</button><button data-max="20">20</button><button data-max="39">39</button></div>
+  </div>
+  <div class="nProg" id="nProg" hidden aria-label="Progress to fireworks"><span aria-hidden="true">🎆</span><div class="nBar"><div class="nFill" id="nFill"></div></div><span id="nProgNum">0/10</span></div>
+
+  <div class="opts" id="wordOpts">
     <button class="opt" id="oShuffle" aria-pressed="false">🔀 Mix up</button>
     <button class="opt" id="oTricky" aria-pressed="false">🔁 Tricky words only</button>
   </div>
@@ -326,7 +377,7 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
       <div class="seg" role="group" aria-label="Board size"><button id="mm4" aria-pressed="true">4 pairs</button><button id="mm6" aria-pressed="false">6 pairs</button></div>
       <div class="count" id="matchInfo">Tries: 0</div>
     </div>
-    <p class="prompt">Find the words that match!</p>
+    <p class="prompt" id="matchPrompt">Find the words that match!</p>
     <div class="matchGrid" id="matchGrid"></div>
     <div class="row" style="margin-top:16px"><button class="big yes" id="bMatchNew"><span class="ic">🔄</span>New game</button></div>
   </section>
@@ -350,6 +401,42 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
     <p class="readStatus" id="readStatus" aria-live="polite"></p>
     <div class="changeRow" id="okRow" hidden><button class="link" id="bGrownOk">Grown-up: mark it correct ✓</button></div>
     <div class="row" style="margin-top:12px"><button class="big arrow" id="bReadPrev" aria-label="Back">◀</button><button class="big arrow" id="bReadNext" aria-label="Next">▶</button></div>
+  </section>
+
+  <!-- Count & Tap -->
+  <section id="nCountView" hidden>
+    <p class="prompt" id="ncPrompt"></p>
+    <div class="objs" id="ncObjs"></div>
+    <p class="readStatus" id="ncStatus" aria-live="polite"></p>
+    <div class="choices" id="ncChoices" hidden style="margin-top:10px"></div>
+    <div class="row" style="margin-top:14px"><button class="big" id="ncReset"><span class="ic">🔄</span>Count again</button><button class="big" id="ncNew"><span class="ic">➡️</span>New group</button></div>
+  </section>
+
+  <!-- How Many -->
+  <section id="nHowView" hidden>
+    <div class="gameHead">
+      <div class="seg" role="group" aria-label="Layout"><button id="nhRows" aria-pressed="true">In rows</button><button id="nhMix" aria-pressed="false">Mixed up</button></div>
+      <button class="big" id="nhHear" aria-label="Hear the question" style="min-width:0;padding:8px 14px"><span class="ic">🔊</span></button>
+    </div>
+    <p class="prompt" id="nhPrompt"></p>
+    <div class="objs" id="nhObjs"></div>
+    <p class="count">Tip: tap each one to mark it as you count.</p>
+    <div class="choices" id="nhChoices"></div>
+  </section>
+
+  <!-- Number Find -->
+  <section id="nFindView" hidden>
+    <p class="prompt">Listen, then tap the number!</p>
+    <div class="row" style="margin-bottom:18px"><button class="big hear" id="nfHear"><span class="ic">👂</span>Hear the number</button></div>
+    <div class="choices" id="nfChoices"></div>
+  </section>
+
+  <!-- What Comes Next -->
+  <section id="nNextView" hidden>
+    <p class="prompt">What number comes next?</p>
+    <div class="nline" id="nnLine"></div>
+    <div class="row" style="margin:6px 0 16px"><button class="big" id="nnHear"><span class="ic">🔊</span>Hear it</button></div>
+    <div class="choices" id="nnChoices"></div>
   </section>
 
   <!-- Finished -->
@@ -628,19 +715,37 @@ function fireworks(){
 }
 
 /* ---------- mode + options ---------- */
-const VIEWS={cards:'cardsView',find:'findView',match:'matchView',pop:'popView',read:'readView'};
-const MODEBTN={cards:'mCards',find:'mFind',match:'mMatch',pop:'mPop',read:'mRead'};
+const VIEWS={cards:'cardsView',find:'findView',match:'matchView',pop:'popView',read:'readView',
+  ncount:'nCountView',nhow:'nHowView',nfind:'nFindView',nnext:'nNextView',nmatch:'matchView',npop:'popView'};
+const MODEBTN={cards:'mCards',find:'mFind',match:'mMatch',pop:'mPop',read:'mRead',
+  ncount:'nmCount',nhow:'nmHow',nfind:'nmFind',nnext:'nmNext',nmatch:'nmMatch',npop:'nmPop'};
+const NUMM=['ncount','nhow','nfind','nnext','nmatch','npop'];
+let cat='words',lastWord='cards',lastNum='ncount';
 function setMode(m){
   mode=m;hush();stopPop();stopRead();
-  Object.keys(VIEWS).forEach(k=>{$(MODEBTN[k]).setAttribute('aria-pressed',String(k===m));$(VIEWS[k]).hidden=k!==m;});
-  $('doneView').hidden=true; buildDeck();
+  if(NUMM.includes(m))lastNum=m;else lastWord=m;
+  Object.keys(MODEBTN).forEach(k=>$(MODEBTN[k]).setAttribute('aria-pressed',String(k===m)));
+  new Set(Object.values(VIEWS)).forEach(v=>{$(v).hidden=v!==VIEWS[m];});
+  $('doneView').hidden=true;buildDeck();
   if(m==='cards') showCard();
   else if(m==='find'){updateMeter();showPicker();}
-  else if(m==='match') startMatch();
-  else if(m==='pop') startPop();
-  else {rPos=0;showRead();}
+  else if(m==='match') startMatch('words');
+  else if(m==='pop') startPop('words');
+  else if(m==='read'){rPos=0;showRead();}
+  else if(m==='ncount') nCountNew();
+  else if(m==='nhow') nHowNew();
+  else if(m==='nfind') nFindNew();
+  else if(m==='nnext') nNextNew();
+  else if(m==='nmatch') startMatch('nums');
+  else if(m==='npop') startPop('nums');
 }
 Object.keys(MODEBTN).forEach(k=>$(MODEBTN[k]).onclick=()=>setMode(k));
+function setCat(c){
+  cat=c;$('catWords').setAttribute('aria-pressed',String(c==='words'));$('catNums').setAttribute('aria-pressed',String(c==='numbers'));
+  const w=c==='words';$('wordTop').hidden=!w;$('wordOpts').hidden=!w;$('numTop').hidden=w;$('nProg').hidden=w;
+  setMode(w?lastWord:lastNum);
+}
+$('catWords').onclick=()=>setCat('words');$('catNums').onclick=()=>setCat('numbers');
 $('oShuffle').onclick=()=>{shuffle=!shuffle;$('oShuffle').setAttribute('aria-pressed',shuffle);setMode(mode);};
 $('oTricky').onclick=()=>{
   if(!onlyTricky&&!tricky.size){hush();say('No tricky words yet!',{rate:.95,pitch:1.2});return;}
@@ -727,40 +832,70 @@ function poolWords(min){const d=deck.length>=min?deck:WORDS.map((_,i)=>i);return
 
 /* ---------- memory match ---------- */
 let mPairs=4,mFirst=null,mLock=false,mTries=0,mFound=0;
-function startMatch(){
+let mKind='words',mObj=null;
+function startMatch(kind){
+  if(typeof kind==='string')mKind=kind;
   hush();mFirst=null;mLock=false;mTries=0;mFound=0;
-  const ws=mix(poolWords(mPairs)).slice(0,mPairs), cards=mix([...ws,...ws]);
-  const g=$('matchGrid');g.innerHTML='';
-  cards.forEach(w=>{
-    const b=document.createElement('button');b.className='mcard';b.setAttribute('aria-label','Hidden card');b.dataset.w=w.w;
-    b.innerHTML='<div class="in"><div class="f bk" aria-hidden="true">⭐</div><div class="f fr'+(w.w.length>7?' long':'')+'"></div></div>';
-    b.querySelector('.fr').textContent=pretty(w.w);b.onclick=()=>flipM(b);g.appendChild(b);
+  $('matchPrompt').textContent=mKind==='nums'?'Match each number to its picture!':'Find the words that match!';
+  const g=$('matchGrid');g.innerHTML='';let cards;
+  if(mKind==='nums'){
+    mObj=pickObj();const lo=nMax===10?1:(nMax===20?5:10),set=new Set();
+    while(set.size<mPairs)set.add(rnd(lo,nMax));
+    cards=mix([...set].flatMap(n=>[{n,pic:false},{n,pic:true}]));
+  }else{
+    const ws=mix(poolWords(mPairs)).slice(0,mPairs);cards=mix([...ws,...ws]).map(w=>({w}));
+  }
+  cards.forEach(c=>{
+    const b=document.createElement('button');b.className='mcard';b.setAttribute('aria-label','Hidden card');
+    b.innerHTML='<div class="in"><div class="f bk" aria-hidden="true">⭐</div><div class="f fr"></div></div>';
+    const fr=b.querySelector('.fr');
+    if(mKind==='nums'){b.dataset.w=String(c.n);
+      if(c.pic){b.dataset.pic='1';fr.appendChild(picFor(c.n));}else{fr.classList.add('num');fr.textContent=c.n;}}
+    else{b.dataset.w=c.w.w;if(c.w.w.length>7)fr.classList.add('long');fr.textContent=pretty(c.w.w);}
+    b.onclick=()=>flipM(b);g.appendChild(b);
   });
   $('matchInfo').textContent='Tries: 0';
 }
+function picFor(n){
+  const d=document.createElement('div');
+  if(n<=10){d.className='pic emo';d.style.setProperty('--pc',Math.min(n,5));
+    for(let i=0;i<n;i++){const e=document.createElement('span');e.textContent=mObj[0];d.appendChild(e);}}
+  else{d.className='pic dots';for(let i=0;i<n;i++)d.appendChild(document.createElement('i'));}
+  return d;
+}
 async function flipM(b){
   if(mLock||b.classList.contains('up')||b.classList.contains('done')) return;
-  b.classList.add('up');b.setAttribute('aria-label',b.dataset.w);hush();say(b.dataset.w,{rate:.8});
+  b.classList.add('up');b.setAttribute('aria-label',(b.dataset.pic?'Picture of ':'')+b.dataset.w);
+  if(!b.dataset.pic){hush();say(b.dataset.w,{rate:.8});}
   if(!mFirst){mFirst=b;return;}
   const a=mFirst;mFirst=null;mTries++;$('matchInfo').textContent=`Tries: ${mTries}`;mLock=true;
-  if(a.dataset.w===b.dataset.w){
-    await wait(550);a.classList.add('done');b.classList.add('done');chime();mFound++;mLock=false;
-    if(mFound===mPairs){confetti(70);await wait(700);hush();say(withName('You found all the pairs! '+pickFrom(PRAISE,'p'),.5),{rate:.9,pitch:1.25});}
-    else if(Math.random()<.5){await wait(500);say(praise(),{rate:.95,pitch:1.25});}
+  if(a.dataset.w===b.dataset.w&&(mKind!=='nums'||a.dataset.pic!==b.dataset.pic)){
+    await wait(550);a.classList.add('done');b.classList.add('done');chime();mFound++;
+    if(mKind==='nums'){hush();await say(`${a.dataset.w}!`,{rate:.85,pitch:1.15});await numCorrect();}
+    mLock=false;
+    if(mFound===mPairs){confetti(70);await wait(700);hush();say(withName('You found all the pairs! '+pickFrom(PRAISE,'p')),{rate:.9,pitch:1.25});}
+    else if(Math.random()<.5){await wait(400);say(praise(),{rate:.95,pitch:1.25});}
   }else{
     await wait(1400);[a,b].forEach(c=>{c.classList.remove('up');c.setAttribute('aria-label','Hidden card');});mLock=false;
   }
 }
 function setPairs(n){mPairs=n;$('mm4').setAttribute('aria-pressed',String(n===4));$('mm6').setAttribute('aria-pressed',String(n===6));startMatch();}
-$('mm4').onclick=()=>setPairs(4);$('mm6').onclick=()=>setPairs(6);$('bMatchNew').onclick=startMatch;
+$('mm4').onclick=()=>setPairs(4);$('mm6').onclick=()=>setPairs(6);$('bMatchNew').onclick=()=>startMatch();
 
 /* ---------- bubble pop ---------- */
 const POP_GOAL=5,BCOLS=['--coral','--blue','--teal','--plum','--sun'];
 let popOn=false,popRAF=0,popBubbles=[],popTarget=null,popOthers=[],popGot=0,popLastSpawn=0,popLastT=0,popSince=0,popBusy=false;
-function startPop(){stopPop();popOn=true;popBusy=false;newPopTarget();popLastT=performance.now();popRAF=requestAnimationFrame(popLoop);}
+let popKind='words';
+function startPop(kind){if(typeof kind==='string')popKind=kind;stopPop();popOn=true;popBusy=false;popTarget=null;newPopTarget();popLastT=performance.now();popRAF=requestAnimationFrame(popLoop);}
 function stopPop(){popOn=false;cancelAnimationFrame(popRAF);popBubbles.forEach(b=>b.el.remove());popBubbles=[];}
 function drawDots(){$('popDots').innerHTML=Array.from({length:POP_GOAL},(_,i)=>`<i class="${i<popGot?'on':''}"></i>`).join('');}
 function newPopTarget(){
+  if(popKind==='nums'){
+    let n;do{n=rnd(1,nMax);}while(popTarget&&String(n)===popTarget.w&&nMax>1);
+    popTarget={w:String(n)};popOthers=numChoices(n,4).filter(x=>x!==n).map(x=>({w:String(x)}));
+    popGot=0;popSince=0;drawDots();$('popTarget').textContent=n;
+    hush();say(`Pop the number… ${n}!`,{rate:.85,pitch:1.15});return;
+  }
   const pool=poolWords(4);let t;
   do{t=pool[Math.floor(Math.random()*pool.length)];}while(popTarget&&t.w===popTarget.w&&pool.length>1);
   popTarget=t;popOthers=mix(WORDS.filter(x=>x.w.toLowerCase()!==t.w.toLowerCase())).slice(0,3);
@@ -794,7 +929,7 @@ async function tapBubble(b){
     setTimeout(()=>b.el.remove(),260);tone([880,1320],.06,'sine',.12);popGot++;drawDots();
     if(popGot>=POP_GOAL){
       popBusy=true;chime();confetti(50);popBubbles.forEach(x=>x.el.remove());popBubbles=[];
-      hush();await say(praise(),{rate:.95,pitch:1.25});await wait(300);
+      hush();await say(praise(),{rate:.95,pitch:1.25});if(popKind==='nums')await numCorrect();await wait(300);
       if(popOn){popBusy=false;newPopTarget();}
     }else{hush();say(popTarget.w,{rate:.85});}
   }else{b.shake=400;boop();hush();say(`That says ${b.w.w}.`,{rate:.9});}
@@ -917,6 +1052,149 @@ $('bReadMine').onclick=async()=>{hush();await playMine();$('readStatus').textCon
 $('bReadHear').onclick=()=>{hush();say(readItem().w,{rate:.75});};
 $('bReadPrev').onclick=()=>{if(rPos>0){rPos--;showRead();}};
 $('bReadNext').onclick=()=>{if(!rPassed)return;rPos=(rPos+1)%deck.length;showRead();};
+
+/* ---------- NUMBER GAMES ---------- */
+const OBJ=[['🍎','apples'],['🦆','ducks'],['⭐','stars'],['🐞','ladybugs'],['🎈','balloons'],['🐟','fish'],
+  ['🍪','cookies'],['🚗','cars'],['🐸','frogs'],['🌸','flowers'],['🐣','chicks'],['🍓','strawberries']];
+let nMax=20;try{const v=parseInt(localStorage.getItem('sightwords-nmax'),10);if([10,20,39].includes(v))nMax=v;}catch(e){}
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const cLow=()=>nMax===10?3:(nMax===20?6:11);
+let lastObj=-1,nLock=false,numRight=0;
+function pickObj(){let i;do{i=Math.floor(Math.random()*OBJ.length);}while(i===lastObj);lastObj=i;return OBJ[i];}
+const revNum=n=>n>=10?parseInt(String(n).split('').reverse().join(''),10):null;
+/* wrong answers are close on purpose: neighbors, flipped digits (13/31), and ten away */
+function numChoices(n,k,exclude=[]){
+  const bad=new Set([n,...exclude]),out=[];
+  const add=x=>{if(x!=null&&x>=1&&x<=nMax&&!bad.has(x)&&!out.includes(x))out.push(x);};
+  add(revNum(n));mix([n+1,n-1,n+10,n-10,n+2,n-2]).forEach(add);
+  let g=0;while(out.length<k-1&&g++<200)add(rnd(1,nMax));
+  return mix([n,...out.slice(0,k-1)]);
+}
+const kFor=()=>nMax===10?3:4;
+function drawNumChoices(box,list,onPick){
+  box.innerHTML='';box.dataset.n=list.length;
+  list.forEach(x=>{const b=document.createElement('button');b.className='choice';b.textContent=x;b.onclick=()=>onPick(x,b);box.appendChild(b);});
+}
+function wrongFx(b){b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');boop();}
+function mkObj(o,onTap){
+  const b=document.createElement('button');b.className='obj';b.setAttribute('aria-label',o[1]);
+  b.innerHTML='<span class="e" aria-hidden="true"></span><span class="badge"></span>';b.querySelector('.e').textContent=o[0];
+  b.onclick=()=>onTap(b);return b;
+}
+function drawObjs(box,n,o,layout,onTap){
+  box.innerHTML='';box.className='objs';
+  if(layout==='scatter'){
+    const [c,r]=n<=10?[5,3]:(n<=20?[6,5]:[8,6]),cw=100/c,rh=100/r;
+    box.classList.add('scatter');box.style.setProperty('--ar',`${c}/${r}`);
+    box.style.setProperty('--fs',n<=10?'clamp(1.8rem,9vw,3rem)':(n<=20?'clamp(1.4rem,7vw,2.4rem)':'clamp(1.1rem,5vw,2rem)'));
+    mix(Array.from({length:c*r},(_,i)=>i)).slice(0,n).forEach(ci=>{
+      const b=mkObj(o,onTap);b.style.setProperty('--cw',(cw*.82)+'%');
+      b.style.left=((ci%c)*cw+Math.random()*cw*.18)+'%';b.style.top=(Math.floor(ci/c)*rh+Math.random()*rh*.12)+'%';box.appendChild(b);
+    });
+  }else{
+    if(n<=10)box.classList.add('small');
+    for(let i=0;i<n;i++)box.appendChild(mkObj(o,onTap));
+  }
+}
+function drawNumProg(){const k=numRight%10;$('nFill').style.width=(k*10)+'%';$('nProgNum').textContent=`${k}/10`;}
+async function numCorrect(){
+  numRight++;
+  if(numRight%10===0){$('nFill').style.width='100%';$('nProgNum').textContent='10/10';await fireworks();}
+  drawNumProg();
+}
+function setMax(m){
+  nMax=m;try{localStorage.setItem('sightwords-nmax',String(m));}catch(e){}
+  document.querySelectorAll('#numTop [data-max]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.max===m)));
+}
+document.querySelectorAll('#numTop [data-max]').forEach(b=>b.onclick=()=>{setMax(+b.dataset.max);if(cat==='numbers')setMode(mode);});
+setMax(nMax);
+
+/* Count & Tap */
+let nc={n:0,o:null,count:0,done:false};
+function nCountNew(){
+  nLock=false;const n=rnd(cLow(),nMax),o=pickObj();nc={n,o,count:0,done:false};
+  $('ncPrompt').textContent=`Tap each one and count the ${o[1]}!`;
+  drawObjs($('ncObjs'),n,o,'rows',tapCount);
+  $('ncChoices').hidden=true;$('ncChoices').innerHTML='';$('ncStatus').textContent='';
+  hush();say(`Tap each one and count the ${o[1]}!`,{rate:.9,pitch:1.15});
+}
+function ncReset(){
+  if(nLock)return;nc.count=0;nc.done=false;
+  $('ncObjs').querySelectorAll('.obj').forEach(b=>{delete b.dataset.c;b.classList.remove('counted');b.querySelector('.badge').textContent='';});
+  $('ncChoices').hidden=true;$('ncStatus').textContent='';hush();say('Let’s count again!',{rate:.95,pitch:1.15});
+}
+function tapCount(b){
+  if(nc.done)return;
+  if(b.dataset.c){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');hush();say('You already counted that one!',{rate:1,pitch:1.15});return;}
+  nc.count++;b.dataset.c=nc.count;b.classList.add('counted');b.querySelector('.badge').textContent=nc.count;
+  $('ncStatus').textContent=nc.count;hush();say(String(nc.count),{rate:1,pitch:1.1});
+  if(nc.count===nc.n){nc.done=true;setTimeout(()=>{
+    if(mode!=='ncount')return;const q=`How many ${nc.o[1]} are there?`;$('ncStatus').textContent=q;
+    drawNumChoices($('ncChoices'),numChoices(nc.n,kFor()),pickCount);$('ncChoices').hidden=false;hush();say(q,{rate:.9});
+  },650);}
+}
+async function pickCount(x,b){
+  if(nLock)return;
+  if(x===nc.n){nLock=true;b.classList.add('right');chime();confetti(30);hush();
+    await say(`${nc.n} ${nc.o[1]}! ${praise()}`,{rate:.9,pitch:1.2});await numCorrect();await wait(300);if(mode==='ncount')nCountNew();}
+  else{wrongFx(b);hush();say(`Almost! The last number you counted was ${nc.n}. So there are ${nc.n} ${nc.o[1]}.`,{rate:.85});}
+}
+$('ncReset').onclick=ncReset;$('ncNew').onclick=()=>{if(!nLock)nCountNew();};
+
+/* How Many? */
+let nh={n:0,o:null},nhLayout='rows';
+function nHowNew(){
+  nLock=false;const n=rnd(cLow(),nMax),o=pickObj();nh={n,o};
+  const q=`How many ${o[1]} are there?`;$('nhPrompt').textContent=q;
+  drawObjs($('nhObjs'),n,o,nhLayout,b=>b.classList.toggle('marked'));
+  drawNumChoices($('nhChoices'),numChoices(n,kFor()),pickHow);
+  hush();say(q,{rate:.9,pitch:1.1});
+}
+async function pickHow(x,b){
+  if(nLock)return;
+  if(x===nh.n){nLock=true;b.classList.add('right');chime();confetti(30);hush();
+    await say(`Yes! ${nh.n} ${nh.o[1]}! ${praise()}`,{rate:.9,pitch:1.2});await numCorrect();await wait(300);if(mode==='nhow')nHowNew();}
+  else{wrongFx(b);$('nhObjs').querySelectorAll('.obj.marked').forEach(o=>o.classList.remove('marked'));hush();
+    say(pickFrom(['Not quite. Let’s count again carefully!','Almost! Touch each one as you count.','Good try! Count them one more time.'],'nh'),{rate:.9,pitch:1.1});}
+}
+function setHowLayout(l){nhLayout=l;$('nhRows').setAttribute('aria-pressed',String(l==='rows'));$('nhMix').setAttribute('aria-pressed',String(l==='scatter'));nHowNew();}
+$('nhRows').onclick=()=>setHowLayout('rows');$('nhMix').onclick=()=>setHowLayout('scatter');
+$('nhHear').onclick=()=>{hush();say($('nhPrompt').textContent,{rate:.9});};
+
+/* Number Find */
+let nf=0;
+function nFindNew(){
+  nLock=false;let n;do{n=rnd(1,nMax);}while(n===nf);nf=n;
+  drawNumChoices($('nfChoices'),numChoices(n,kFor()),pickFind);hush();say(`Find the number… ${n}!`,{rate:.85,pitch:1.1});
+}
+async function pickFind(x,b){
+  if(nLock)return;
+  if(x===nf){nLock=true;b.classList.add('right');chime();confetti(25);hush();
+    await say(Math.random()<.5?`Yes! ${nf}!`:`${nf}! ${praise()}`,{rate:.9,pitch:1.2});await numCorrect();await wait(300);if(mode==='nfind')nFindNew();}
+  else{wrongFx(b);hush();say(`That is ${x}. Find ${nf}!`,{rate:.85});}
+}
+$('nfHear').onclick=()=>{hush();say(`Find the number… ${nf}!`,{rate:.85});};
+
+/* What Comes Next? (extra practice crossing 10, 20 and 30) */
+let nn={ans:0,seq:[]};
+function nNextNew(){
+  nLock=false;
+  const decs=[10,20,30].filter(d=>d<=nMax).flatMap(d=>[d,d+1]).filter(d=>d>=4&&d<=nMax);
+  let ans;do{ans=(Math.random()<.5&&decs.length)?decs[Math.floor(Math.random()*decs.length)]:rnd(4,nMax);}while(ans===nn.ans);
+  const seq=[ans-3,ans-2,ans-1];nn={ans,seq};
+  const line=$('nnLine');line.innerHTML='';
+  seq.forEach(x=>{const t=document.createElement('div');t.className='ntile';t.textContent=x;line.appendChild(t);});
+  const bl=document.createElement('div');bl.className='ntile blank';bl.id='nnBlank';bl.textContent='?';line.appendChild(bl);
+  drawNumChoices($('nnChoices'),numChoices(ans,kFor(),seq),pickNext);sayNext();
+}
+function sayNext(){hush();say(`${nn.seq.join(', ')}… what comes next?`,{rate:.8,pitch:1.1});}
+async function pickNext(x,b){
+  if(nLock)return;
+  if(x===nn.ans){nLock=true;b.classList.add('right');const bl=$('nnBlank');bl.textContent=x;bl.className='ntile filled';chime();confetti(25);hush();
+    await say(`${[...nn.seq,x].join(', ')}! ${praise()}`,{rate:.85,pitch:1.2});await numCorrect();await wait(300);if(mode==='nnext')nNextNew();}
+  else{wrongFx(b);hush();say(`Not quite. Let’s count: ${nn.seq.join(', ')}…`,{rate:.8});}
+}
+$('nnHear').onclick=sayNext;
 
 stars(); buildDeck(); showCard();
 if(!nameAsked) askName();
