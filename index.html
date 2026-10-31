@@ -103,7 +103,7 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
 .prompt{text-align:center;font-size:1.6rem;font-weight:700}
 .hear{margin:0 auto;font-size:1.3rem;padding:16px 28px;background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--blue) 60%,#000)}
 .hear .ic{font-size:3rem}
-.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
 .choice{
   border:6px solid var(--line);background:var(--card);border-radius:24px;box-shadow:var(--shadow);
   font-size:clamp(2.4rem,9vw,3.6rem);font-weight:700;padding:22px 8px;
@@ -126,6 +126,81 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
   .card{transition:none}.bounce,.choice.wrong{animation:none}.confetti{display:none}
   .word span{transition:none}
 }
+/* keep each button row on one line */
+.toolRow,.navRow{display:grid;gap:8px;max-width:560px;margin-left:auto;margin-right:auto}
+.toolRow{grid-template-columns:repeat(3,minmax(0,1fr))}
+.navRow{grid-template-columns:52px minmax(0,1fr) minmax(0,1fr) 52px}
+.toolRow .big,.navRow .big{min-width:0}
+.navRow .arrow{padding:10px 0;font-size:1.7rem}
+@media (max-width:480px){
+  .toolRow .big,.navRow .big:not(.arrow){font-size:.95rem;padding:10px 4px;line-height:1.15;text-align:center}
+  .toolRow .big .ic,.navRow .big .ic{font-size:1.5rem}
+  .navRow{grid-template-columns:44px minmax(0,1fr) minmax(0,1fr) 44px;gap:6px}
+}
+/* how-many-words picker */
+.pickBtns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:8px}
+@media (max-width:560px){.pickBtns{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pickBtn{border:6px solid var(--pc);background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:16px 6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700}
+.pickBtn b{font-size:3.2rem;line-height:1;color:var(--pc)}
+.pickBtn .minis{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;max-width:90px}
+.pickBtn .minis i{width:14px;height:10px;border-radius:3px;background:var(--pc);display:block}
+.pickBtn span{font-size:1rem;color:var(--soft)}
+.pickBtn[aria-pressed="true"]{background:color-mix(in srgb,var(--pc) 16%,var(--card))}
+.pickBtn[data-n="3"]{--pc:var(--teal)}.pickBtn[data-n="4"]{--pc:var(--blue)}.pickBtn[data-n="5"]{--pc:var(--plum)}.pickBtn[data-n="6"]{--pc:var(--coral)}
+.choices[data-n="5"] .choice,.choices[data-n="6"] .choice{font-size:clamp(1.8rem,6.5vw,2.8rem);padding:16px 6px}
+.choices .choice.long{font-size:clamp(1.1rem,4.2vw,1.8rem)}
+.changeRow{text-align:center;margin-top:6px}
+/* name screen */
+.nameWrap{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;padding-top:calc(20px + env(safe-area-inset-top,0px))}
+.nameCard{background:var(--card);border:8px solid var(--blue);border-radius:28px;box-shadow:var(--shadow);padding:28px 22px;max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.nameCard .emoji{font-size:4rem}
+.nameCard h2{margin:0;font-size:2rem}
+.nameCard p{margin:0;color:var(--soft)}
+#nameInput{font:inherit;font-size:2rem;font-weight:700;text-align:center;width:100%;padding:10px 14px;border:4px solid var(--line);border-radius:16px;background:var(--bg);color:var(--ink);user-select:text;-webkit-user-select:text}
+#nameInput:focus{outline:none;border-color:var(--blue)}
+/* more modes */
+.modes{flex-wrap:wrap;border-radius:22px;gap:2px}
+.modes button{padding:8px 12px;font-size:1rem}
+@media (max-width:600px){.top{flex-direction:column;align-items:stretch}.modes{justify-content:center}.stars{justify-content:center}}
+.big:disabled{opacity:.45;cursor:default}
+.gameHead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;max-width:640px;margin-left:auto;margin-right:auto}
+.seg{display:flex;gap:6px}
+.seg button{border:3px solid var(--line);background:var(--chip);border-radius:14px;padding:6px 12px;font-weight:700;color:var(--soft)}
+.seg button[aria-pressed="true"]{border-color:var(--blue);color:var(--ink);background:color-mix(in srgb,var(--blue) 14%,var(--chip))}
+/* memory match */
+.matchGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:640px;margin:0 auto}
+.mcard{aspect-ratio:3/4;border:0;padding:0;background:none;perspective:800px}
+.mcard .in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .4s}
+.mcard.up .in,.mcard.done .in{transform:rotateY(180deg)}
+.mcard .f{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.mcard .bk{background:var(--blue);font-size:2rem}
+.mcard .fr{background:var(--card);border:5px solid var(--line);transform:rotateY(180deg);font-weight:700;font-size:clamp(1.2rem,5.5vw,2.2rem);padding:4px;text-align:center;overflow:hidden}
+.mcard .fr.long{font-size:clamp(.75rem,2.8vw,1.15rem)}
+.mcard.done .fr{border-color:var(--good);background:color-mix(in srgb,var(--good) 16%,var(--card))}
+.mcard.done{animation:bounce .45s}
+/* bubble pop */
+.popHead{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.popTarget{font-size:clamp(2.2rem,9vw,3.2rem);font-weight:700;color:var(--plum)}
+.popHead .big{min-width:0;padding:8px 14px}
+.popDots{display:flex;gap:8px;justify-content:center;margin-bottom:10px}
+.popDots i{width:20px;height:20px;border-radius:50%;border:3px solid var(--plum);display:block}
+.popDots i.on{background:var(--plum)}
+.popStage{position:relative;height:min(62vh,520px);min-height:340px;border-radius:24px;background:color-mix(in srgb,var(--blue) 10%,var(--card));border:4px solid var(--line);overflow:hidden;touch-action:manipulation}
+.bubble{position:absolute;left:0;top:0;width:var(--bs);height:var(--bs);border-radius:50%;border:0;padding:0;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.85) 0 9%,transparent 10%),color-mix(in srgb,var(--bc) 28%,var(--card));
+  box-shadow:inset 0 0 0 4px var(--bc);font-weight:700;font-size:calc(var(--bs) * .27);color:var(--ink);will-change:transform}
+.bubble.long{font-size:calc(var(--bs) * .17)}
+/* read it to me */
+.readCard{max-width:520px;margin:0 auto;background:var(--card);border:8px solid var(--accent,var(--teal));border-radius:28px;box-shadow:var(--shadow);aspect-ratio:7/4;display:flex;align-items:center;justify-content:center}
+.readWord{font-size:clamp(3.5rem,16vw,7rem);font-weight:700;line-height:1}
+.readWord.long{font-size:clamp(2rem,9vw,4rem)}
+.readRow{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:18px;flex-wrap:wrap}
+.mic{width:116px;height:116px;border-radius:50%;border:0;background:var(--coral);color:#fff;font-size:3.2rem;box-shadow:0 6px 0 color-mix(in srgb,var(--coral) 60%,#000);display:flex;align-items:center;justify-content:center}
+.mic.rec{animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.08);box-shadow:0 0 0 14px color-mix(in srgb,var(--coral) 30%,transparent)}}
+.readStatus{text-align:center;font-size:1.2rem;font-weight:700;min-height:1.6em;margin:12px 0 0}
+@media (prefers-reduced-motion:reduce){.mic.rec,.mcard.done{animation:none}.mcard .in{transition:none}}
 /* progress piles */
 .cardsWrap{display:grid;grid-template-columns:120px minmax(0,1fr) 120px;grid-template-areas:"left main right";gap:16px;align-items:start}
 .cardsMain{grid-area:main;min-width:0}
@@ -170,6 +245,9 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
     <div class="modes" role="group" aria-label="Game">
       <button id="mCards" aria-pressed="true">🃏 Cards</button>
       <button id="mFind" aria-pressed="false">👂 Find it</button>
+      <button id="mMatch" aria-pressed="false">🧠 Match</button>
+      <button id="mPop" aria-pressed="false">🫧 Pop</button>
+      <button id="mRead" aria-pressed="false">🎤 Read</button>
     </div>
     <div class="stars" aria-live="polite"><b>⭐</b><span id="starCount">0</span>&nbsp;/&nbsp;<span id="total">0</span></div>
   </div>
@@ -199,12 +277,12 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
         </div>
       </button>
     </div>
-    <div class="row" style="margin-top:18px">
+    <div class="row toolRow" style="margin-top:18px">
       <button class="big" id="bHear"><span class="ic">🔊</span>Hear it</button>
       <button class="big" id="bSpell"><span class="ic">🐢</span>Spell it</button>
       <button class="big" id="bFlip"><span class="ic">💬</span>Sentence</button>
     </div>
-    <div class="row" style="margin-top:12px">
+    <div class="row navRow" style="margin-top:12px">
       <button class="big arrow" id="bPrev" aria-label="Back">◀</button>
       <button class="big again" id="bAgain"><span class="ic">🔁</span>Practice again</button>
       <button class="big yes" id="bKnow"><span class="ic">⭐</span>I know it!</button>
@@ -217,10 +295,22 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
   <!-- Find mode -->
   <section id="findView" class="findWrap" hidden>
     <div class="findMain">
+      <div id="pickCount" hidden>
+        <p class="prompt">How many words?</p>
+        <div class="pickBtns">
+          <button class="pickBtn" data-n="3"><b>3</b><div class="minis" aria-hidden="true"><i></i><i></i><i></i></div><span>Easy</span></button>
+          <button class="pickBtn" data-n="4"><b>4</b><div class="minis" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span>Medium</span></button>
+          <button class="pickBtn" data-n="5"><b>5</b><div class="minis" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><span>Harder</span></button>
+          <button class="pickBtn" data-n="6"><b>6</b><div class="minis" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div><span>Hardest</span></button>
+        </div>
+      </div>
+      <div id="findGame">
       <p class="prompt">Listen, then tap the word!</p>
       <div class="row" style="margin-bottom:18px"><button class="big hear" id="bListen"><span class="ic">👂</span>Hear the word</button></div>
       <div class="choices" id="choices"></div>
       <p class="count" id="findScore"></p>
+      <div class="changeRow"><button class="link" id="bChangeCount">Change how many words</button></div>
+      </div>
     </div>
     <div class="meter" role="img" id="meter" aria-label="0 of 10 to fireworks">
       <div class="meterGoal" aria-hidden="true">🎆</div>
@@ -228,6 +318,37 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
       <div class="meterNum" id="meterNum">0/10</div>
       <div class="rockets" id="rockets" aria-hidden="true"></div>
     </div>
+  </section>
+
+  <!-- Memory match -->
+  <section id="matchView" hidden>
+    <div class="gameHead">
+      <div class="seg" role="group" aria-label="Board size"><button id="mm4" aria-pressed="true">4 pairs</button><button id="mm6" aria-pressed="false">6 pairs</button></div>
+      <div class="count" id="matchInfo">Tries: 0</div>
+    </div>
+    <p class="prompt">Find the words that match!</p>
+    <div class="matchGrid" id="matchGrid"></div>
+    <div class="row" style="margin-top:16px"><button class="big yes" id="bMatchNew"><span class="ic">🔄</span>New game</button></div>
+  </section>
+
+  <!-- Bubble pop -->
+  <section id="popView" hidden>
+    <div class="popHead"><span class="prompt" style="margin:0">Pop</span><span class="popTarget" id="popTarget"></span><button class="big" id="bPopHear" aria-label="Hear the word again"><span class="ic">🔊</span></button></div>
+    <div class="popDots" id="popDots"></div>
+    <div class="popStage" id="popStage"></div>
+  </section>
+
+  <!-- Read it to me -->
+  <section id="readView" hidden>
+    <p class="prompt">Read the word out loud!</p>
+    <div class="readCard" id="readCard"><div class="readWord" id="readWord"></div></div>
+    <div class="readRow">
+      <button class="big" id="bReadHear"><span class="ic">🔊</span>Helper</button>
+      <button class="mic" id="bMic" aria-label="Record me reading">🎤</button>
+      <button class="big" id="bReadMine" disabled><span class="ic">▶️</span>Hear me</button>
+    </div>
+    <p class="readStatus" id="readStatus" aria-live="polite"></p>
+    <div class="row" style="margin-top:12px"><button class="big arrow" id="bReadPrev" aria-label="Back">◀</button><button class="big arrow" id="bReadNext" aria-label="Next">▶</button></div>
   </section>
 
   <!-- Finished -->
@@ -238,9 +359,19 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
     <button class="big yes" id="bRestart"><span class="ic">🔄</span>Go again</button>
   </section>
 
-  <div class="foot"><div id="checkOut" class="note" hidden style="margin-bottom:10px;text-align:left"></div><button class="link" id="bCheck">Sound check</button> &nbsp; <button class="link" id="bReset">Start my stars over</button></div>
+  <div class="foot"><div id="checkOut" class="note" hidden style="margin-bottom:10px;text-align:left"></div><button class="link" id="bCheck">Sound check</button> &nbsp; <button class="link" id="bName">Change name</button> &nbsp; <button class="link" id="bReset">Start my stars over</button></div>
 </div>
 <div class="confetti" id="confetti"></div>
+<div class="nameWrap" id="nameWrap" hidden>
+  <div class="nameCard">
+    <div class="emoji" aria-hidden="true">👋</div>
+    <h2>Hi! What’s your name?</h2>
+    <p>A grown-up can help type it.</p>
+    <input id="nameInput" maxlength="20" autocomplete="off" autocapitalize="words" placeholder="Name" aria-label="Child’s name">
+    <button class="big yes" id="bNameGo"><span class="ic">⭐</span>Let’s play!</button>
+    <button class="link" id="bNameSkip">Skip</button>
+  </div>
+</div>
 <canvas class="fw" id="fw" hidden></canvas>
 <div class="fwMsg" id="fwMsg" hidden>🎆 10 right! 🎆</div>
 
@@ -378,7 +509,8 @@ function next(){ if(pos<deck.length-1){pos++;showCard();} else finish(); }
 function prev(){ if(pos>0){pos--;showCard();} }
 function finish(){
   hush();$('cardsView').hidden=true;$('doneView').hidden=false;
-  $('doneMsg').textContent=`You have ${known.size} stars!`;chime();confetti(90);say('Hooray! You did every card!',{rate:.9,pitch:1.25});
+  $('doneView').querySelector('h2').textContent=kidName?`You did every card, ${kidName}!`:'You did every card!';
+  $('doneMsg').textContent=`You have ${known.size} stars!`;chime();confetti(90);say(kidName?`Hooray, ${kidName}! You did every card!`:'Hooray! You did every card!',{rate:.9,pitch:1.25});
 }
 
 $('card').onclick=()=>{ $('card').classList.contains('flipped') ? (hush(),say(WORDS[deck[pos]].s,{rate:.8})) : hearWord(); };
@@ -388,12 +520,12 @@ $('bFlip').onclick=flip;
 $('bNext').onclick=next; $('bPrev').onclick=prev;
 $('bKnow').onclick=async()=>{
   const it=WORDS[deck[pos]];const was=known.has(it.w);known.add(it.w);tricky.delete(it.w);save();sesKnow.add(it.w);sesAgain.delete(it.w);stars();
-  hush();chime();if(!was)confetti(30);await say(['Great job!','Super!','You got it!','Yay!'][Math.floor(Math.random()*4)],{rate:.95,pitch:1.25});
+  hush();chime();if(!was)confetti(30);await say(praise(),{rate:.95,pitch:1.25});
   next();
 };
 $('bAgain').onclick=async()=>{
   const it=WORDS[deck[pos]];tricky.add(it.w);known.delete(it.w);save();sesAgain.add(it.w);sesKnow.delete(it.w);stars();hush();
-  await say('Let’s practice it again later.',{rate:.95,pitch:1.15}); next();
+  await say(encourage(),{rate:.95,pitch:1.15}); next();
 };
 $('bRestart').onclick=()=>{sesKnow.clear();sesAgain.clear();renderPiles();buildDeck();$('doneView').hidden=true;$('cardsView').hidden=false;showCard();};
 
@@ -404,12 +536,12 @@ function newRound(){
   locked=false;
   const pool=deck.length>=3?deck:WORDS.map((_,i)=>i);
   target=WORDS[pool[Math.floor(Math.random()*pool.length)]];
-  const others=mix(WORDS.filter(x=>x.w.toLowerCase()!==target.w.toLowerCase())).slice(0,2);
-  let spot; do{spot=Math.floor(Math.random()*3);}while(spot===lastSpot && Math.random()<.7);
+  const others=mix(WORDS.filter(x=>x.w.toLowerCase()!==target.w.toLowerCase())).slice(0,choiceCount-1);
+  let spot; do{spot=Math.floor(Math.random()*choiceCount);}while(spot===lastSpot && Math.random()<.7);
   lastSpot=spot;
   const opts=others.slice(); opts.splice(spot,0,target);
-  const box=$('choices');box.innerHTML='';
-  opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.textContent=pretty(o.w);
+  const box=$('choices');box.innerHTML='';box.dataset.n=choiceCount;
+  opts.forEach(o=>{const b=document.createElement('button');b.className='choice'+(o.w.length>7?' long':'');b.textContent=pretty(o.w);
     b.style.color=`var(--ink)`;b.onclick=()=>pick(o,b);box.appendChild(b);});
   $('findScore').textContent=findTries?`⭐ ${findRight} found`:'';
   sayTarget();
@@ -426,15 +558,30 @@ async function pick(o,btn){
       await fireworks();
     }else{
       confetti(30);updateMeter();
-      await say(`Yes! ${target.w}!`,{rate:.9,pitch:1.25});
+      await say(`${target.w}! ${praise()}`,{rate:.9,pitch:1.25});
     }
-    updateMeter();await wait(400);newRound();
+    updateMeter();await wait(400); if(findRight%10===0) showPicker(); else newRound();
   }else{
     findTries++;btn.classList.remove('wrong');void btn.offsetWidth;btn.classList.add('wrong');boop();
-    tricky.add(target.w);save();hush();await say(`That says ${o.w}. Try again! Find… ${target.w}`,{rate:.85});
+    tricky.add(target.w);save();hush();await say(oops(o.w,target.w),{rate:.85});
   }
 }
 $('bListen').onclick=sayTarget;
+
+/* ---------- how many words ---------- */
+let choiceCount=3;
+try{const c=parseInt(localStorage.getItem('sightwords-count'),10);if(c>=3&&c<=6)choiceCount=c;}catch(e){}
+function showPicker(){
+  hush();locked=true;
+  $('findGame').hidden=true;$('pickCount').hidden=false;
+  document.querySelectorAll('.pickBtn').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.n===choiceCount)));
+  say('How many words do you want?',{rate:.9,pitch:1.2});
+}
+document.querySelectorAll('.pickBtn').forEach(b=>b.onclick=()=>{
+  choiceCount=+b.dataset.n;try{localStorage.setItem('sightwords-count',String(choiceCount));}catch(e){}
+  $('pickCount').hidden=true;$('findGame').hidden=false;newRound();
+});
+$('bChangeCount').onclick=showPicker;
 
 /* ---------- progress meter + fireworks ---------- */
 function updateMeter(){
@@ -454,7 +601,8 @@ function pop(){try{const a=audio(),t=a.currentTime,len=Math.floor(a.sampleRate*.
 function fireworks(){
   return new Promise(res=>{
     const msg=$('fwMsg');
-    say('Wow! Ten right! Fireworks!',{rate:.95,pitch:1.25});
+    msg.textContent=kidName?`🎆 10 right, ${kidName}! 🎆`:'🎆 10 right! 🎆';
+    say(kidName?`Wow, ${kidName}! Ten right! Fireworks!`:'Wow! Ten right! Fireworks!',{rate:.95,pitch:1.25});
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){msg.hidden=false;setTimeout(()=>{msg.hidden=true;res();},2500);return;}
     const cv=$('fw'),ctx=cv.getContext('2d'),dpr=window.devicePixelRatio||1,W=innerWidth,H=innerHeight;
     cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);cv.hidden=false;msg.hidden=false;
@@ -479,12 +627,19 @@ function fireworks(){
 }
 
 /* ---------- mode + options ---------- */
+const VIEWS={cards:'cardsView',find:'findView',match:'matchView',pop:'popView',read:'readView'};
+const MODEBTN={cards:'mCards',find:'mFind',match:'mMatch',pop:'mPop',read:'mRead'};
 function setMode(m){
-  mode=m;hush();$('mCards').setAttribute('aria-pressed',m==='cards');$('mFind').setAttribute('aria-pressed',m==='find');
-  $('doneView').hidden=true;$('cardsView').hidden=m!=='cards';$('findView').hidden=m!=='find';
-  buildDeck(); if(m==='cards') showCard(); else {updateMeter();newRound();}
+  mode=m;hush();stopPop();stopRead();
+  Object.keys(VIEWS).forEach(k=>{$(MODEBTN[k]).setAttribute('aria-pressed',String(k===m));$(VIEWS[k]).hidden=k!==m;});
+  $('doneView').hidden=true; buildDeck();
+  if(m==='cards') showCard();
+  else if(m==='find'){updateMeter();showPicker();}
+  else if(m==='match') startMatch();
+  else if(m==='pop') startPop();
+  else {rPos=0;showRead();}
 }
-$('mCards').onclick=()=>setMode('cards'); $('mFind').onclick=()=>setMode('find');
+Object.keys(MODEBTN).forEach(k=>$(MODEBTN[k]).onclick=()=>setMode(k));
 $('oShuffle').onclick=()=>{shuffle=!shuffle;$('oShuffle').setAttribute('aria-pressed',shuffle);setMode(mode);};
 $('oTricky').onclick=()=>{
   if(!onlyTricky&&!tricky.size){hush();say('No tricky words yet!',{rate:.95,pitch:1.2});return;}
@@ -532,7 +687,170 @@ $('bCheck').onclick=()=>{
   setTimeout(()=>{if(!started&&!errored)show('Voice test: no response ❌'+(lastErr?' (earlier error: '+lastErr+')':''));},3000);
 };
 
+/* ---------- child's name + encouragement ---------- */
+let kidName='', nameAsked=false;
+try{kidName=localStorage.getItem('sightwords-name')||'';nameAsked=localStorage.getItem('sightwords-name-asked')==='1';}catch(e){}
+const PRAISE=['Great job!','You are doing great!','Wow, you are amazing!','Super reading!','You got it!','Awesome!','Way to go!',
+  'You are a reading star!','Fantastic!','Nice work!','High five!','You are so smart!','Keep it up!','Hooray!','I am so proud of you!'];
+const AGAIN=['We will get it next time!','No problem! We will practice that one.','That is okay! Practice makes progress.',
+  'Good try! We will see it again soon.','That is a tricky one. We will come back to it!','You are learning! We will try it again later.',
+  'No worries! Every try helps you learn.'];
+const OOPS=[(o,t)=>`That says ${o}. Try again! Find… ${t}`,(o,t)=>`Almost! That one is ${o}. Can you find ${t}?`,
+  (o,t)=>`Good try! That says ${o}. Let’s find ${t}.`,(o,t)=>`Oops, that is ${o}. Look for ${t}!`];
+const lastPick={}; let lastNamed=false;
+function pickFrom(list,key){let i;do{i=Math.floor(Math.random()*list.length);}while(list.length>1&&i===lastPick[key]);lastPick[key]=i;return list[i];}
+function withName(p,chance=.3){
+  if(kidName&&!lastNamed&&Math.random()<chance){lastNamed=true;return p.replace(/([!.?])$/,`, ${kidName}$1`);}
+  lastNamed=false;return p;
+}
+function praise(){return withName(pickFrom(PRAISE,'p'));}
+function encourage(){return withName(pickFrom(AGAIN,'a'));}
+function oops(o,t){return pickFrom(OOPS,'o')(o,t);}
+function askName(){$('nameInput').value=kidName;$('nameWrap').hidden=false;setTimeout(()=>{try{$('nameInput').focus();}catch(e){}},100);}
+function closeName(){
+  $('nameWrap').hidden=true;nameAsked=true;
+  try{localStorage.setItem('sightwords-name',kidName);localStorage.setItem('sightwords-name-asked','1');}catch(e){}
+}
+$('bNameGo').onclick=()=>{
+  kidName=$('nameInput').value.trim().replace(/\s+/g,' ').slice(0,20);closeName();
+  hush();say(kidName?`Hi, ${kidName}! Let’s read!`:'Let’s read!',{rate:.9,pitch:1.25});
+};
+$('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('bNameGo').click();}});
+$('bNameSkip').onclick=closeName;
+$('bName').onclick=askName;
+
+/* ---------- shared helpers ---------- */
+function poolWords(min){const d=deck.length>=min?deck:WORDS.map((_,i)=>i);return d.map(i=>WORDS[i]);}
+
+/* ---------- memory match ---------- */
+let mPairs=4,mFirst=null,mLock=false,mTries=0,mFound=0;
+function startMatch(){
+  hush();mFirst=null;mLock=false;mTries=0;mFound=0;
+  const ws=mix(poolWords(mPairs)).slice(0,mPairs), cards=mix([...ws,...ws]);
+  const g=$('matchGrid');g.innerHTML='';
+  cards.forEach(w=>{
+    const b=document.createElement('button');b.className='mcard';b.setAttribute('aria-label','Hidden card');b.dataset.w=w.w;
+    b.innerHTML='<div class="in"><div class="f bk" aria-hidden="true">⭐</div><div class="f fr'+(w.w.length>7?' long':'')+'"></div></div>';
+    b.querySelector('.fr').textContent=pretty(w.w);b.onclick=()=>flipM(b);g.appendChild(b);
+  });
+  $('matchInfo').textContent='Tries: 0';
+}
+async function flipM(b){
+  if(mLock||b.classList.contains('up')||b.classList.contains('done')) return;
+  b.classList.add('up');b.setAttribute('aria-label',b.dataset.w);hush();say(b.dataset.w,{rate:.8});
+  if(!mFirst){mFirst=b;return;}
+  const a=mFirst;mFirst=null;mTries++;$('matchInfo').textContent=`Tries: ${mTries}`;mLock=true;
+  if(a.dataset.w===b.dataset.w){
+    await wait(550);a.classList.add('done');b.classList.add('done');chime();mFound++;mLock=false;
+    if(mFound===mPairs){confetti(70);await wait(700);hush();say(withName('You found all the pairs! '+pickFrom(PRAISE,'p'),.5),{rate:.9,pitch:1.25});}
+    else if(Math.random()<.5){await wait(500);say(praise(),{rate:.95,pitch:1.25});}
+  }else{
+    await wait(1400);[a,b].forEach(c=>{c.classList.remove('up');c.setAttribute('aria-label','Hidden card');});mLock=false;
+  }
+}
+function setPairs(n){mPairs=n;$('mm4').setAttribute('aria-pressed',String(n===4));$('mm6').setAttribute('aria-pressed',String(n===6));startMatch();}
+$('mm4').onclick=()=>setPairs(4);$('mm6').onclick=()=>setPairs(6);$('bMatchNew').onclick=startMatch;
+
+/* ---------- bubble pop ---------- */
+const POP_GOAL=5,BCOLS=['--coral','--blue','--teal','--plum','--sun'];
+let popOn=false,popRAF=0,popBubbles=[],popTarget=null,popOthers=[],popGot=0,popLastSpawn=0,popLastT=0,popSince=0,popBusy=false;
+function startPop(){stopPop();popOn=true;popBusy=false;newPopTarget();popLastT=performance.now();popRAF=requestAnimationFrame(popLoop);}
+function stopPop(){popOn=false;cancelAnimationFrame(popRAF);popBubbles.forEach(b=>b.el.remove());popBubbles=[];}
+function drawDots(){$('popDots').innerHTML=Array.from({length:POP_GOAL},(_,i)=>`<i class="${i<popGot?'on':''}"></i>`).join('');}
+function newPopTarget(){
+  const pool=poolWords(4);let t;
+  do{t=pool[Math.floor(Math.random()*pool.length)];}while(popTarget&&t.w===popTarget.w&&pool.length>1);
+  popTarget=t;popOthers=mix(WORDS.filter(x=>x.w.toLowerCase()!==t.w.toLowerCase())).slice(0,3);
+  popGot=0;popSince=0;drawDots();$('popTarget').textContent=pretty(t.w);
+  hush();say(`Pop the word… ${t.w}!`,{rate:.85,pitch:1.15});
+}
+function spawnBubble(){
+  const st=$('popStage'),W=st.clientWidth,H=st.clientHeight;if(!W) return;
+  const size=W<420?86:104,isT=popSince>=2||Math.random()<.42;
+  const w=isT?popTarget:popOthers[Math.floor(Math.random()*popOthers.length)];popSince=isT?0:popSince+1;
+  const el=document.createElement('button');el.className='bubble'+(w.w.length>6?' long':'');el.textContent=pretty(w.w);
+  el.style.setProperty('--bs',size+'px');el.style.setProperty('--bc',`var(${BCOLS[Math.floor(Math.random()*BCOLS.length)]})`);
+  const b={el,w,x:Math.random()*Math.max(0,W-size-20)+10,y:H+10,vy:(H+size+20)/(7000+Math.random()*2500),ph:Math.random()*6.28,size,shake:0};
+  el.onclick=()=>tapBubble(b);st.appendChild(el);popBubbles.push(b);
+}
+function popLoop(now){
+  if(!popOn) return;
+  const dt=Math.min(50,now-popLastT);popLastT=now;
+  if(!popBusy&&now-popLastSpawn>1150&&popBubbles.length<7){spawnBubble();popLastSpawn=now;}
+  popBubbles.forEach(b=>{b.y-=b.vy*dt;b.ph+=dt*.002;let sx=Math.sin(b.ph)*10;
+    if(b.shake>0){b.shake-=dt;sx+=Math.sin(b.shake*.08)*8;}
+    b.el.style.transform=`translate(${b.x+sx}px,${b.y}px)`;});
+  popBubbles=popBubbles.filter(b=>{if(b.y<-b.size-10){b.el.remove();return false;}return true;});
+  popRAF=requestAnimationFrame(popLoop);
+}
+async function tapBubble(b){
+  if(!popOn||popBusy) return;
+  if(b.w===popTarget){
+    popBubbles=popBubbles.filter(x=>x!==b);b.el.disabled=true;
+    b.el.style.transition='transform .2s, opacity .2s';b.el.style.transform+=' scale(1.6)';b.el.style.opacity='0';
+    setTimeout(()=>b.el.remove(),260);tone([880,1320],.06,'sine',.12);popGot++;drawDots();
+    if(popGot>=POP_GOAL){
+      popBusy=true;chime();confetti(50);popBubbles.forEach(x=>x.el.remove());popBubbles=[];
+      hush();await say(praise(),{rate:.95,pitch:1.25});await wait(300);
+      if(popOn){popBusy=false;newPopTarget();}
+    }else{hush();say(popTarget.w,{rate:.85});}
+  }else{b.shake=400;boop();hush();say(`That says ${b.w.w}.`,{rate:.9});}
+}
+$('bPopHear').onclick=()=>{if(popTarget){hush();say(`Pop… ${popTarget.w}`,{rate:.85});}};
+
+/* ---------- read it to me ---------- */
+let rPos=0,rec=null,recChunks=[],recURL=null,recStream=null,recTimer=0,mineAudio=null;
+function readItem(){return WORDS[deck[Math.min(rPos,deck.length-1)]];}
+function clearRec(){if(recURL){URL.revokeObjectURL(recURL);recURL=null;}$('bReadMine').disabled=true;}
+function showRead(){
+  hush();stopRead();clearRec();const it=readItem(),w=$('readWord');
+  w.textContent=pretty(it.w);w.className='readWord'+(it.w.length>7?' long':'');
+  $('readCard').style.setProperty('--accent',accentFor(it));
+  $('readStatus').textContent='Tap the microphone, then read the word.';
+}
+function micIdle(){$('bMic').classList.remove('rec');$('bMic').textContent='🎤';$('bMic').setAttribute('aria-label','Record me reading');}
+function stopRead(){
+  clearTimeout(recTimer);
+  if(rec&&rec.state==='recording'){rec.onstop=null;try{rec.stop();}catch(e){}}
+  if(recStream){recStream.getTracks().forEach(t=>t.stop());recStream=null;}
+  if(mineAudio){mineAudio.pause();mineAudio=null;}
+  micIdle();
+}
+function playMine(){
+  return new Promise(res=>{
+    if(!recURL) return res();
+    $('readStatus').textContent='Here’s you!';
+    const a=new Audio(recURL);mineAudio=a;a.onended=res;a.onerror=res;a.play().catch(res);setTimeout(res,6000);
+  });
+}
+async function startRec(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){
+    $('readStatus').textContent='Recording doesn’t work here. Try the installed app in Chrome.';return;}
+  hush();
+  try{recStream=await navigator.mediaDevices.getUserMedia({audio:true});}
+  catch(e){$('readStatus').textContent='The microphone is blocked. Allow it in Chrome’s site settings, then try again.';return;}
+  recChunks=[];rec=new MediaRecorder(recStream);
+  rec.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data);};
+  rec.onstop=async()=>{
+    if(recStream){recStream.getTracks().forEach(t=>t.stop());recStream=null;}
+    micIdle();clearRec();
+    recURL=URL.createObjectURL(new Blob(recChunks,{type:rec.mimeType||'audio/webm'}));$('bReadMine').disabled=false;
+    await playMine();await wait(250);
+    $('readStatus').textContent='Now the helper…';await say(readItem().w,{rate:.75});
+    const p=praise();$('readStatus').textContent=p;say(p,{rate:.95,pitch:1.25});
+  };
+  rec.start();$('bMic').classList.add('rec');$('bMic').textContent='⏹️';$('bMic').setAttribute('aria-label','Stop recording');
+  $('readStatus').textContent='Listening… read the word!';
+  clearTimeout(recTimer);recTimer=setTimeout(()=>{if(rec&&rec.state==='recording')rec.stop();},3500);
+}
+$('bMic').onclick=()=>{if(rec&&rec.state==='recording'){clearTimeout(recTimer);rec.stop();}else startRec();};
+$('bReadMine').onclick=async()=>{hush();await playMine();$('readStatus').textContent='Tap the microphone to try again.';};
+$('bReadHear').onclick=()=>{hush();say(readItem().w,{rate:.75});};
+$('bReadPrev').onclick=()=>{if(rPos>0){rPos--;showRead();}};
+$('bReadNext').onclick=()=>{rPos=(rPos+1)%deck.length;showRead();};
+
 stars(); buildDeck(); showCard();
+if(!nameAsked) askName();
 </script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
