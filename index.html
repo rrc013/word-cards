@@ -348,6 +348,7 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
       <button class="big" id="bReadMine" disabled><span class="ic">▶️</span>Hear me</button>
     </div>
     <p class="readStatus" id="readStatus" aria-live="polite"></p>
+    <div class="changeRow" id="okRow" hidden><button class="link" id="bGrownOk">Grown-up: mark it correct ✓</button></div>
     <div class="row" style="margin-top:12px"><button class="big arrow" id="bReadPrev" aria-label="Back">◀</button><button class="big arrow" id="bReadNext" aria-label="Next">▶</button></div>
   </section>
 
@@ -699,9 +700,11 @@ const OOPS=[(o,t)=>`That says ${o}. Try again! Find… ${t}`,(o,t)=>`Almost! Tha
   (o,t)=>`Good try! That says ${o}. Let’s find ${t}.`,(o,t)=>`Oops, that is ${o}. Look for ${t}!`];
 const lastPick={}; let lastNamed=false;
 function pickFrom(list,key){let i;do{i=Math.floor(Math.random()*list.length);}while(list.length>1&&i===lastPick[key]);lastPick[key]=i;return list[i];}
-function withName(p,chance=.3){
-  if(kidName&&!lastNamed&&Math.random()<chance){lastNamed=true;return p.replace(/([!.?])$/,`, ${kidName}$1`);}
-  lastNamed=false;return p;
+/* her name comes up on every 2nd, 3rd or 4th encouragement, picked at random each time */
+let nameGap=2+Math.floor(Math.random()*3);
+function withName(p){
+  if(kidName&&--nameGap<=0){nameGap=2+Math.floor(Math.random()*3);return p.replace(/([!.?])$/,`, ${kidName}$1`);}
+  return p;
 }
 function praise(){return withName(pickFrom(PRAISE,'p'));}
 function encourage(){return withName(pickFrom(AGAIN,'a'));}
@@ -799,22 +802,83 @@ async function tapBubble(b){
 $('bPopHear').onclick=()=>{if(popTarget){hush();say(`Pop… ${popTarget.w}`,{rate:.85});}};
 
 /* ---------- read it to me ---------- */
-let rPos=0,rec=null,recChunks=[],recURL=null,recStream=null,recTimer=0,mineAudio=null;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+let useSR=!!SR;
+let rPos=0,rec=null,recChunks=[],recURL=null,recStream=null,recTimer=0,mineAudio=null,recog=null,rPassed=false,rMiss=0,rBusy=false;
+/* words that sound alike, so a correct reading isn't marked wrong */
+const SOUNDS={a:['a','uh','ah','eh','hey','ay'],i:['i','eye','aye','hi'],im:['im','i am','i m'],to:['to','too','two'],too:['too','to','two'],
+  the:['the','thee','duh','da'],for:['for','four','fore'],no:['no','know'],new:['new','knew'],see:['see','sea','c'],so:['so','sew','sow'],
+  you:['you','u','yu'],are:['are','r','our'],here:['here','hear'],we:['we','wee'],my:['my','mi'],do:['do','dew','due'],and:['and','an','n'],
+  in:['in','inn'],kindergarten:['kindergarten','kinder garden','kindergarden','kinder garten']};
+const normT=t=>t.toLowerCase().replace(/[’']/g,'').replace(/[^a-z ]/g,' ').replace(/\s+/g,' ').trim();
+function heardIt(alts,word){
+  const key=normT(word).replace(/ /g,''),ok=SOUNDS[key]||[key];
+  return alts.some(t=>{const n=' '+normT(t)+' ';return ok.some(f=>n.includes(' '+f+' '));});
+}
 function readItem(){return WORDS[deck[Math.min(rPos,deck.length-1)]];}
 function clearRec(){if(recURL){URL.revokeObjectURL(recURL);recURL=null;}$('bReadMine').disabled=true;}
+function setPassed(v){rPassed=v;$('bReadNext').disabled=!v;}
 function showRead(){
-  hush();stopRead();clearRec();const it=readItem(),w=$('readWord');
+  hush();stopRead();clearRec();rMiss=0;setPassed(false);$('okRow').hidden=true;
+  const it=readItem(),w=$('readWord');
   w.textContent=pretty(it.w);w.className='readWord'+(it.w.length>7?' long':'');
   $('readCard').style.setProperty('--accent',accentFor(it));
-  $('readStatus').textContent='Tap the microphone, then read the word.';
+  $('bReadMine').hidden=useSR;
+  $('readStatus').textContent='Tap the microphone and read the word!';
 }
 function micIdle(){$('bMic').classList.remove('rec');$('bMic').textContent='🎤';$('bMic').setAttribute('aria-label','Record me reading');}
+function micOn(){$('bMic').classList.add('rec');$('bMic').textContent='⏹️';$('bMic').setAttribute('aria-label','Stop');}
 function stopRead(){
   clearTimeout(recTimer);
+  if(recog){try{recog.onend=null;recog.onresult=null;recog.onerror=null;recog.abort();}catch(e){}recog=null;}
   if(rec&&rec.state==='recording'){rec.onstop=null;try{rec.stop();}catch(e){}}
   if(recStream){recStream.getTracks().forEach(t=>t.stop());recStream=null;}
   if(mineAudio){mineAudio.pause();mineAudio=null;}
-  micIdle();
+  rBusy=false;micIdle();
+}
+async function passRead(){
+  const it=readItem();setPassed(true);$('okRow').hidden=true;
+  known.add(it.w);tricky.delete(it.w);save();stars();chime();confetti(40);
+  const p=praise();$('readStatus').textContent='✓ '+p;
+  rBusy=true;hush();await say(p,{rate:.95,pitch:1.25});await wait(500);rBusy=false;
+  if(mode==='read'&&readItem()===it){rPos=(rPos+1)%deck.length;showRead();}
+}
+const TRY=['Almost! Let’s try again.','Good try! Listen, then try again.','So close! One more time.','Nice try! Listen carefully.'];
+async function missRead(heard){
+  rMiss++;boop();const it=readItem();tricky.add(it.w);save();
+  if(rMiss>=2)$('okRow').hidden=false;
+  rBusy=true;hush();
+  if(heard){
+    const line=pickFrom(TRY,'r');
+    $('readStatus').textContent=`I heard “${heard}.” ${line}`;
+    await say(line,{rate:.95,pitch:1.15});await wait(150);await say(`This word is… ${it.w}`,{rate:.75});
+  }else{
+    $('readStatus').textContent='I didn’t hear you. Tap the mic and say it nice and loud!';
+    await say('I did not hear you. Say it nice and loud!',{rate:.95,pitch:1.15});
+  }
+  rBusy=false;
+}
+function startListen(){
+  if(rBusy) return;
+  hush();let got=false,errored=false;
+  try{recog=new SR();}catch(e){useSR=false;showRead();return;}
+  recog.lang='en-US';recog.interimResults=false;recog.maxAlternatives=5;recog.continuous=false;
+  recog.onresult=e=>{
+    got=true;const alts=[...e.results[0]].map(a=>a.transcript).filter(Boolean);
+    if(heardIt(alts,readItem().w)) passRead(); else missRead(alts[0]||'');
+  };
+  recog.onerror=e=>{
+    errored=true;micIdle();const er=e.error;
+    if(er==='no-speech'){missRead('');}
+    else if(er==='service-not-allowed'){useSR=false;$('bReadMine').hidden=false;$('okRow').hidden=false;
+      $('readStatus').textContent='Word checking isn’t available here, so a grown-up can check instead. Tap the mic to record.';}
+    else if(er==='not-allowed'){$('readStatus').textContent='The microphone is blocked. Allow it in the phone’s settings for this app, then try again.';}
+    else if(er==='network'){$('readStatus').textContent='Checking words needs internet. Connect to Wi-Fi and try again.';}
+    else if(er!=='aborted'){$('readStatus').textContent='Something went wrong. Tap the mic to try again.';}
+  };
+  recog.onend=()=>{micIdle();recog=null;if(!got&&!errored)missRead('');};
+  micOn();$('readStatus').textContent='Listening… read the word!';
+  try{recog.start();}catch(e){micIdle();recog=null;}
 }
 function playMine(){
   return new Promise(res=>{
@@ -823,12 +887,13 @@ function playMine(){
     const a=new Audio(recURL);mineAudio=a;a.onended=res;a.onerror=res;a.play().catch(res);setTimeout(res,6000);
   });
 }
+/* backup for phones without word checking: record, play back, grown-up confirms */
 async function startRec(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){
-    $('readStatus').textContent='Recording doesn’t work here. Try the installed app in Chrome.';return;}
+    $('readStatus').textContent='Recording doesn’t work here. A grown-up can listen and tap ✓ below.';$('okRow').hidden=false;return;}
   hush();
   try{recStream=await navigator.mediaDevices.getUserMedia({audio:true});}
-  catch(e){$('readStatus').textContent='The microphone is blocked. Allow it in Chrome’s site settings, then try again.';return;}
+  catch(e){$('readStatus').textContent='The microphone is blocked. Allow it in the phone’s settings, then try again.';return;}
   recChunks=[];rec=new MediaRecorder(recStream);
   rec.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data);};
   rec.onstop=async()=>{
@@ -837,17 +902,21 @@ async function startRec(){
     recURL=URL.createObjectURL(new Blob(recChunks,{type:rec.mimeType||'audio/webm'}));$('bReadMine').disabled=false;
     await playMine();await wait(250);
     $('readStatus').textContent='Now the helper…';await say(readItem().w,{rate:.75});
-    const p=praise();$('readStatus').textContent=p;say(p,{rate:.95,pitch:1.25});
+    $('readStatus').textContent='Grown-up: did it sound right? Tap ✓ below, or try again.';$('okRow').hidden=false;
   };
-  rec.start();$('bMic').classList.add('rec');$('bMic').textContent='⏹️';$('bMic').setAttribute('aria-label','Stop recording');
-  $('readStatus').textContent='Listening… read the word!';
+  rec.start();micOn();$('readStatus').textContent='Listening… read the word!';
   clearTimeout(recTimer);recTimer=setTimeout(()=>{if(rec&&rec.state==='recording')rec.stop();},3500);
 }
-$('bMic').onclick=()=>{if(rec&&rec.state==='recording'){clearTimeout(recTimer);rec.stop();}else startRec();};
+$('bMic').onclick=()=>{
+  if(recog){try{recog.stop();}catch(e){}return;}
+  if(rec&&rec.state==='recording'){clearTimeout(recTimer);rec.stop();return;}
+  if(useSR) startListen(); else startRec();
+};
+$('bGrownOk').onclick=()=>{if(!rPassed)passRead();};
 $('bReadMine').onclick=async()=>{hush();await playMine();$('readStatus').textContent='Tap the microphone to try again.';};
 $('bReadHear').onclick=()=>{hush();say(readItem().w,{rate:.75});};
 $('bReadPrev').onclick=()=>{if(rPos>0){rPos--;showRead();}};
-$('bReadNext').onclick=()=>{rPos=(rPos+1)%deck.length;showRead();};
+$('bReadNext').onclick=()=>{if(!rPassed)return;rPos=(rPos+1)%deck.length;showRead();};
 
 stars(); buildDeck(); showCard();
 if(!nameAsked) askName();

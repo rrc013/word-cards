@@ -1,5 +1,5 @@
 // Keeps Word Cards working with no internet connection.
-const CACHE = 'wordcards-v6';
+const CACHE = 'wordcards-v8';
 const FILES = ['./', './index.html', './manifest.webmanifest',
   './fonts/andika-400.woff2', './fonts/andika-700.woff2',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
