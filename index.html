@@ -238,7 +238,7 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
     <button class="big yes" id="bRestart"><span class="ic">🔄</span>Go again</button>
   </section>
 
-  <div class="foot"><button class="link" id="bReset">Start my stars over</button></div>
+  <div class="foot"><div id="checkOut" class="note" hidden style="margin-bottom:10px;text-align:left"></div><button class="link" id="bCheck">Sound check</button> &nbsp; <button class="link" id="bReset">Start my stars over</button></div>
 </div>
 <div class="confetti" id="confetti"></div>
 <canvas class="fw" id="fw" hidden></canvas>
@@ -278,7 +278,7 @@ function save(){try{localStorage.setItem('sightwords-v1',JSON.stringify({known:[
 
 /* ---------- speech ---------- */
 const synth=('speechSynthesis' in window)?window.speechSynthesis:null; let voice=null; let runId=0;
-const isAndroid=/Android/i.test(navigator.userAgent); let lastCancel=0, everStarted=false, fails=0; const keep=[];
+const isAndroid=/Android/i.test(navigator.userAgent); let lastCancel=0, everStarted=false, fails=0, lastErr=''; const keep=[];
 if(!synth) $('noVoice').hidden=false;
 function pickVoice(){
   if(!synth) return; const vs=synth.getVoices().filter(v=>/^en/i.test(v.lang));
@@ -295,7 +295,7 @@ function say(text,{rate=.8,pitch=1.1,onstart}={}){
       if(voice && !isAndroid) u.voice=voice;   /* Android: let the phone's own voice handle it */
       u.lang='en-US'; u.rate=rate; u.pitch=pitch; u.volume=1;
       u.onstart=()=>{everStarted=true;fails=0;$('noVoice').hidden=true;onstart&&onstart();};
-      u.onend=finish; u.onerror=finish;
+      u.onend=finish; u.onerror=e=>{lastErr=(e&&e.error)||'';finish();};
       keep.push(u); if(keep.length>20) keep.shift();   /* stops Chrome from dropping speech mid-way */
       try{synth.resume();}catch(e){}
       synth.speak(u);
@@ -305,7 +305,7 @@ function say(text,{rate=.8,pitch=1.1,onstart}={}){
     const gap=Date.now()-lastCancel; gap<150 ? setTimeout(go,150-gap) : go();
   });
 }
-function hush(){runId++; if(synth){synth.cancel();lastCancel=Date.now();} document.querySelectorAll('.word span').forEach(s=>s.classList.remove('lit'));$('word').classList.remove('say');}
+function hush(){runId++; if(synth){ if(synth.speaking||synth.pending) lastCancel=Date.now(); synth.cancel(); } document.querySelectorAll('.word span').forEach(s=>s.classList.remove('lit'));$('word').classList.remove('say');}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
 /* ---------- little sounds ---------- */
@@ -512,6 +512,25 @@ function renderPiles(){
   drawPile($('pileKnow'),k,lastCounts.k);drawPile($('pileAgain'),a,lastCounts.a);
   lastCounts={k:k.length,a:a.length};
 }
+
+/* ---------- sound check ---------- */
+$('bCheck').onclick=()=>{
+  const out=$('checkOut'); out.hidden=false; tone([660,880],.15);
+  const lines=['Beeps: you should have just heard two beeps.'];
+  const show=extra=>{out.innerHTML=lines.join('<br>')+'<br>'+extra;};
+  if(!('speechSynthesis' in window)){show('Voice: this browser has no voice feature ❌');return;}
+  const vs=speechSynthesis.getVoices();
+  lines.push('Voices found: '+vs.length+(vs.length?' ('+vs.slice(0,3).map(v=>v.name+' '+v.lang).join(', ')+')':''));
+  lines.push('Browser: '+(navigator.userAgent.match(/(Chrome|Firefox|SamsungBrowser|EdgA|wv)[\/ ]?[\d.]*/g)||['unknown']).join(' '));
+  show('Voice test: trying…');
+  if(speechSynthesis.speaking||speechSynthesis.pending) speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance('Hello! Can you hear me?'); u.lang='en-US'; u.rate=.9; keep.push(u);
+  let started=false, errored=false;
+  u.onstart=()=>{started=true;show('Voice test: started speaking ✅');};
+  u.onerror=e=>{errored=true;show('Voice test: error “'+(e.error||'unknown')+'” ❌');};
+  speechSynthesis.speak(u);
+  setTimeout(()=>{if(!started&&!errored)show('Voice test: no response ❌'+(lastErr?' (earlier error: '+lastErr+')':''));},3000);
+};
 
 stars(); buildDeck(); showCard();
 </script>
